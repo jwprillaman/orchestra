@@ -1,0 +1,44 @@
+syntax="proto3";
+
+package directorproto;
+
+service Director {
+	rpc GetPlayers(Filter) returns (Players) {}
+	
+	rpc GetSongs(Filter) returns (Songs) {}
+
+	rpc RegisterPlayer(Player) returns (Response) {}
+	
+	rpc RemovePlayer(Player) returns (Response) {}
+
+	rpc Report(PlayerReport) returns (Response) {}
+}
+
+message Players {
+	repeated string addresses = 1;
+}
+
+message Songs {
+	repeated int64 ids = 1;
+	repeated string players = 2;
+}
+
+message Filter {
+	string playerName = 1;
+	string songIds = 2;
+}
+
+message Player {
+	string address = 1;
+}
+
+message Response {
+	bool success = 1;
+	string msg = 2;
+}
+
+message PlayerReport {
+	string address = 1;
+	int64 mem = 2;
+	repeated int64 songIds = 3;
+}
