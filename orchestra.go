@@ -7,7 +7,7 @@ import (
 	"github.com/jwprillaman/orchestra/player"
 )
 
-func main(){
+func main() {
 	service := flag.String("service", "director", "service to start")
 	port := flag.Int("port", 50001, "port for service")
 	address := flag.String("address", "localhost:50001", "address of director")
@@ -18,7 +18,6 @@ func main(){
 	fmt.Println("port :", *port)
 	fmt.Println("address :", *address)
 
-
 	switch *service {
 	case "director":
 		director.Start(*port)
@@ -28,8 +27,4 @@ func main(){
 		fmt.Println("invalid service : ", *service)
 	}
 
-
-
-
 }
-
