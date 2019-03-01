@@ -14,6 +14,9 @@ type Model struct {
 	Address string
 	SongIds []string
 }
+const (
+	reportFrequency int = 10000
+)
 
 func Start(name string, address string){
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
@@ -23,17 +26,20 @@ func Start(name string, address string){
 	defer conn.Close()
 	c := pb.NewDirectorClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+
+	registerCtx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-
-
 	p := pb.Player{Name:name}
-	r, err := c.RegisterPlayer(ctx, &p)
-	defer c.RemovePlayer(ctx, &p) //remove from store
+	r, err := c.RegisterPlayer(registerCtx, &p)
+
+	removeCtx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer c.RemovePlayer(removeCtx, &p) //remove from store
 	fmt.Println(r)
 	fmt.Println(err)
 
-	allPlayers, err := c.GetPlayers(ctx,&pb.Filter{})
+
+	playersCtx, cancel := context.WithTimeout(context.Background(), time.Second)
+	allPlayers, err := c.GetPlayers(playersCtx,&pb.Filter{})
 	fmt.Println(allPlayers)
 	fmt.Println(err)
 
