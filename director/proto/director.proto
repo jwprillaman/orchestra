@@ -1,13 +1,13 @@
 syntax="proto3";
 
-package directorproto;
+package proto;
 
 service Director {
 	rpc GetPlayers(Filter) returns (Players) {}
 	
 	rpc GetSongs(Filter) returns (Songs) {}
 
-	rpc RegisterPlayer(Player) returns (Response) {}
+	rpc Register(Player) returns (Response) {}
 	
 	rpc RemovePlayer(Player) returns (Response) {}
 

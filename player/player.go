@@ -21,6 +21,7 @@ func Start(address string){
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
+
 	r, err := c.Report(ctx, &pb.PlayerReport{Address:"player1", Mem:55, SongIds:[]int64{0,1,2}})
 	fmt.Println(r)
 	fmt.Println(err)

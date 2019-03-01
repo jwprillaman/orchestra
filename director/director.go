@@ -6,7 +6,7 @@ import (
 	"net"
 	"log"
 	"google.golang.org/grpc"
-	pb "github.com/jwprillaman/orchestra/director/directorproto"
+	pb "github.com/jwprillaman/orchestra/director/proto"
 )
 
 type server struct{}
@@ -21,7 +21,7 @@ func (s *server) GetSongs(context context.Context, filter *pb.Filter) (*pb.Songs
 	return &pb.Songs{Ids:[]int64{0, 1},Players:[]string{"player1","player2"}}, nil
 }
 
-func (s *server) RegisterPlayer(context context.Context, player *pb.Player) (*pb.Response, error) {
+func (s *server) Register(context context.Context, player *pb.Player) (*pb.Response, error) {
 	return &pb.Response{Success:true,Msg:"success"}, nil
 }
 
