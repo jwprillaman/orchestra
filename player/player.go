@@ -7,8 +7,13 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/jwprillaman/orchestra/director/directorproto"
+	pb "github.com/jwprillaman/orchestra/director/proto"
 )
+
+type Model struct {
+	Address string
+	SongIds []string
+}
 
 func Start(address string){
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
@@ -22,7 +27,13 @@ func Start(address string){
 	defer cancel()
 
 
-	r, err := c.Report(ctx, &pb.PlayerReport{Address:"player1", Mem:55, SongIds:[]int64{0,1,2}})
+	r, err := c.Register(ctx, &pb.Player{Address:"player1"})
 	fmt.Println(r)
 	fmt.Println(err)
+
+	p, err := c.GetPlayers(ctx,&pb.Filter{})
+	fmt.Println(p)
+	fmt.Println(err)
+
+
 }
