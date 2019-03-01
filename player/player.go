@@ -15,7 +15,7 @@ type Model struct {
 	SongIds []string
 }
 
-func Start(address string){
+func Start(name string, address string){
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v\n", err)
@@ -27,12 +27,14 @@ func Start(address string){
 	defer cancel()
 
 
-	r, err := c.Register(ctx, &pb.Player{Address:"player1"})
+	p := pb.Player{Name:name}
+	r, err := c.RegisterPlayer(ctx, &p)
+	defer c.RemovePlayer(ctx, &p) //remove from store
 	fmt.Println(r)
 	fmt.Println(err)
 
-	p, err := c.GetPlayers(ctx,&pb.Filter{})
-	fmt.Println(p)
+	allPlayers, err := c.GetPlayers(ctx,&pb.Filter{})
+	fmt.Println(allPlayers)
 	fmt.Println(err)
 
 

@@ -8,12 +8,14 @@ import (
 )
 
 func main() {
-	service := flag.String("service", "director", "service to start")
-	port := flag.Int("port", 50001, "port for service")
-	address := flag.String("address", "localhost:50001", "address of director")
+	service := flag.String("s", "", "Service")
+	port := flag.Int("p", -1, "Port")
+	address := flag.String("a", "", "Address")
+	name := flag.String("n", "", "Name")
 
 	flag.Parse()
 
+	fmt.Println("name : " + *name)
 	fmt.Println("service :", *service)
 	fmt.Println("port :", *port)
 	fmt.Println("address :", *address)
@@ -22,7 +24,7 @@ func main() {
 	case "director":
 		director.Start(*port)
 	case "player":
-		player.Start(*address)
+		player.Start(*name, *address)
 	default:
 		fmt.Println("invalid service : ", *service)
 	}

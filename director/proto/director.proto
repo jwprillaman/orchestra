@@ -7,7 +7,7 @@ service Director {
 	
 	rpc GetSongs(Filter) returns (Songs) {}
 
-	rpc Register(Player) returns (Response) {}
+	rpc RegisterPlayer(Player) returns (Response) {}
 	
 	rpc RemovePlayer(Player) returns (Response) {}
 
@@ -15,7 +15,7 @@ service Director {
 }
 
 message Players {
-	repeated string addresses = 1;
+	repeated string names = 1;
 }
 
 message Songs {
@@ -29,7 +29,7 @@ message Filter {
 }
 
 message Player {
-	string address = 1;
+	string name = 1;
 }
 
 message Response {

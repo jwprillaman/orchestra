@@ -16,13 +16,13 @@ var playerStore map[string]*player.Model = make(map[string]*player.Model)
 
 func (s *server) GetPlayers(context context.Context, filter *pb.Filter) (*pb.Players, error) {
 	log.Printf("Filter : %v\n", filter.PlayerName)
-	addresses := make([]string, len(playerStore))
+	names := make([]string, len(playerStore))
 	i := 0
-	for address := range playerStore {
-		addresses[i] = address
+	for name := range playerStore {
+		names[i] = name
 		i++
 	}
-	return &pb.Players{Addresses: addresses}, nil
+	return &pb.Players{Names: names}, nil
 }
 
 func (s *server) GetSongs(context context.Context, filter *pb.Filter) (*pb.Songs, error) {
@@ -30,15 +30,15 @@ func (s *server) GetSongs(context context.Context, filter *pb.Filter) (*pb.Songs
 	return &pb.Songs{Ids: []int64{0, 1}, Players: []string{"player1", "player2"}}, nil
 }
 
-func (s *server) Register(context context.Context, input *pb.Player) (*pb.Response, error) {
+func (s *server) RegisterPlayer(context context.Context, input *pb.Player) (*pb.Response, error) {
 	success := true
 	msg := "success"
-	_, exists := playerStore[input.Address]
+	_, exists := playerStore[input.Name]
 	if exists {
 		success = false
-		msg = "address already registered"
+		msg = "name already registered"
 	} else {
-		playerStore[input.Address] = &player.Model{Address: input.Address, SongIds: make([]string, 0)}
+		playerStore[input.Name] = &player.Model{Address: input.Name, SongIds: make([]string, 0)}
 	}
 	return &pb.Response{Success: success, Msg: msg}, nil
 }
