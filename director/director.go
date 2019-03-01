@@ -8,20 +8,29 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"sync"
 )
 
 type server struct{}
 
-var playerStore map[string]*player.Model = make(map[string]*player.Model)
+type playerStore struct {
+	store map[string]*player.Model
+	mux sync.Mutex
+}
+
+	var allPlayers = &playerStore{make(map[string]*player.Model),sync.Mutex{}}
+
 
 func (s *server) GetPlayers(context context.Context, filter *pb.Filter) (*pb.Players, error) {
 	log.Printf("Filter : %v\n", filter.PlayerName)
-	names := make([]string, len(playerStore))
+	allPlayers.mux.Lock()
+	names := make([]string, len(allPlayers.store))
 	i := 0
-	for name := range playerStore {
+	for name := range allPlayers.store {
 		names[i] = name
 		i++
 	}
+	allPlayers.mux.Unlock()
 	return &pb.Players{Names: names}, nil
 }
 
@@ -31,19 +40,25 @@ func (s *server) GetSongs(context context.Context, filter *pb.Filter) (*pb.Songs
 }
 
 func (s *server) RegisterPlayer(context context.Context, input *pb.Player) (*pb.Response, error) {
+	allPlayers.mux.Lock()
 	success := true
 	msg := "success"
-	_, exists := playerStore[input.Name]
+	_, exists := allPlayers.store[input.Name]
 	if exists {
 		success = false
 		msg = "name already registered"
 	} else {
-		playerStore[input.Name] = &player.Model{Address: input.Name, SongIds: make([]string, 0)}
+		allPlayers.store[input.Name] = &player.Model{Address: input.Name, SongIds: make([]string, 0)}
 	}
+	allPlayers.mux.Unlock()
 	return &pb.Response{Success: success, Msg: msg}, nil
 }
 
 func (s *server) RemovePlayer(context context.Context, player *pb.Player) (*pb.Response, error) {
+	allPlayers.mux.Lock()
+	delete(allPlayers.store, player.Name)
+
+	allPlayers.mux.Unlock()
 	return &pb.Response{Success: true, Msg: "success"}, nil
 }
 
