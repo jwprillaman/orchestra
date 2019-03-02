@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"log"
+	"runtime"
 	"time"
 
 	pb "github.com/jwprillaman/orchestra/director/proto"
@@ -12,10 +13,15 @@ import (
 
 type Model struct {
 	Address string
-	SongIds []string
+	SongIds []int64
+	Mem uint64
+}
+
+type Report struct {
+	Mem uint64
 }
 const (
-	reportFrequency int = 10000
+	reportFrequency int = 1
 )
 
 func Start(name string, address string){
@@ -32,16 +38,48 @@ func Start(name string, address string){
 	p := pb.Player{Name:name}
 	r, err := c.RegisterPlayer(registerCtx, &p)
 
-	removeCtx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer c.RemovePlayer(removeCtx, &p) //remove from store
-	fmt.Println(r)
-	fmt.Println(err)
+	if err != nil {
+		panic(err)
+	}
+	if !r.Success {
+		panic(fmt.Sprintf("Could not register %v", name))
+	}
 
+	ch := make(chan Report)
+	defer cleanup(c,p,ch) //remove from store
 
-	playersCtx, cancel := context.WithTimeout(context.Background(), time.Second)
-	allPlayers, err := c.GetPlayers(playersCtx,&pb.Filter{})
-	fmt.Println(allPlayers)
-	fmt.Println(err)
+	go monitor(ch)
 
+	for {
+		select{
+		case x := <- ch:
+			ctx, _ := context.WithTimeout(context.Background(), time.Second)
+			r,err := c.Report(ctx, &pb.PlayerReport{Name:name, Mem:x.Mem,SongIds:make([]int64, 0)})
+			if err != nil || !r.Success{
+				log.Fatal("Could not communicate with director")
+			}
+		}
+	}
 
+}
+
+func monitor(ch chan Report) {
+	memStats := runtime.MemStats{}
+	for {
+		runtime.ReadMemStats(&memStats)
+		select {
+		case ch <- Report{memStats.Sys}:
+		case <-ch:
+			return
+		}
+		time.Sleep(time.Duration(reportFrequency) * time.Second)
+	}
+
+}
+
+func cleanup(c pb.DirectorClient, p pb.Player, ch chan Report){
+	close(ch) //close channel to stop goroutine
+
+	removeCtx, _ := context.WithTimeout(context.Background(), time.Second)
+	c.RemovePlayer(removeCtx, &p)
 }

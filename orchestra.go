@@ -12,6 +12,7 @@ func main() {
 	port := flag.Int("p", -1, "Port")
 	address := flag.String("a", "", "Address")
 	name := flag.String("n", "", "Name")
+	command := flag.String("c", "", "Command")
 
 	flag.Parse()
 
@@ -19,6 +20,14 @@ func main() {
 	fmt.Println("service :", *service)
 	fmt.Println("port :", *port)
 	fmt.Println("address :", *address)
+
+	switch *command {
+	case "players":
+		//TODO create command capability 
+	default:
+		fmt.Printf("%v is not a valid command\n", command)
+
+	}
 
 	switch *service {
 	case "director":

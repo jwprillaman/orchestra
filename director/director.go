@@ -48,7 +48,7 @@ func (s *server) RegisterPlayer(context context.Context, input *pb.Player) (*pb.
 		success = false
 		msg = "name already registered"
 	} else {
-		allPlayers.store[input.Name] = &player.Model{Address: input.Name, SongIds: make([]string, 0)}
+		allPlayers.store[input.Name] = &player.Model{Address: input.Name, SongIds: make([]int64, 0), Mem:0}
 	}
 	allPlayers.mux.Unlock()
 	return &pb.Response{Success: success, Msg: msg}, nil
@@ -64,7 +64,17 @@ func (s *server) RemovePlayer(context context.Context, player *pb.Player) (*pb.R
 
 func (s *server) Report(context context.Context, report *pb.PlayerReport) (*pb.Response, error) {
 	fmt.Printf("Player : %v\n\tMem : %v\n\tSongs : %v\n", report.Mem, report.Mem, len(report.SongIds))
-	return &pb.Response{Success: true, Msg: "success"}, nil
+	success := true
+	msg := "success"
+	if v, exists := allPlayers.store[report.Name]; exists {
+		v.Mem = report.Mem
+		v.SongIds = report.SongIds
+	} else {
+		success = false
+		msg = fmt.Sprintf("%v is not registered with director\n", report.Name)
+	}
+
+	return &pb.Response{Success: success, Msg: msg}, nil
 }
 
 func Start(port int) {
