@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jwprillaman/orchestra/director"
 	"github.com/jwprillaman/orchestra/player"
+	"github.com/jwprillaman/orchestra/command"
 )
 
 func main() {
@@ -12,7 +13,7 @@ func main() {
 	port := flag.Int("p", -1, "Port")
 	address := flag.String("a", "", "Address")
 	name := flag.String("n", "", "Name")
-	command := flag.String("c", "", "Command")
+	cmd := flag.String("c", "", "Command")
 
 	flag.Parse()
 
@@ -21,12 +22,9 @@ func main() {
 	fmt.Println("port :", *port)
 	fmt.Println("address :", *address)
 
-	switch *command {
-	case "players":
-		//TODO create command capability 
-	default:
-		fmt.Printf("%v is not a valid command\n", command)
 
+	if *cmd != "" && *address != ""{
+		command.Run(*address,*cmd)
 	}
 
 	switch *service {
