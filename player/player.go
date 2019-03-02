@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"log"
+	"os"
+	"os/signal"
 	"runtime"
 	"time"
 
@@ -48,6 +50,17 @@ func Start(name string, address string){
 	ch := make(chan Report)
 	defer cleanup(c,p,ch) //remove from store
 
+	osCh := make(chan os.Signal, 1)
+	signal.Notify(osCh, os.Interrupt)
+
+	go func(){
+		<-osCh
+		cleanup(c,p,ch)
+
+	}()
+
+
+
 	go monitor(ch)
 
 	for {
@@ -78,6 +91,7 @@ func monitor(ch chan Report) {
 }
 
 func cleanup(c pb.DirectorClient, p pb.Player, ch chan Report){
+	fmt.Printf("I am running cleanup!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
 	close(ch) //close channel to stop goroutine
 
 	removeCtx, _ := context.WithTimeout(context.Background(), time.Second)
