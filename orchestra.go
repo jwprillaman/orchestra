@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/jwprillaman/orchestra/command"
 	"github.com/jwprillaman/orchestra/director"
 	"github.com/jwprillaman/orchestra/player"
-	"github.com/jwprillaman/orchestra/command"
 )
 
 func main() {
@@ -22,9 +22,8 @@ func main() {
 	fmt.Println("port :", *port)
 	fmt.Println("address :", *address)
 
-
-	if *cmd != "" && *address != ""{
-		command.Run(*address,*cmd)
+	if *cmd != "" && *address != "" {
+		command.Run(*address, *cmd)
 	}
 
 	switch *service {
