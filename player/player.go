@@ -25,57 +25,58 @@ type Report struct {
 const (
 	reportFrequency int = 1
 )
-
+//Register player and begin send stats to director
 func Start(name string, address string){
+	//connect to director and create client
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v\n", err)
 	}
 	defer conn.Close()
-	c := pb.NewDirectorClient(conn)
+	client := pb.NewDirectorClient(conn)
 
-
+	//register player with director
 	registerCtx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	p := pb.Player{Name:name}
-	r, err := c.RegisterPlayer(registerCtx, &p)
-
+	player := pb.Player{Name:name}
+	r, err := client.RegisterPlayer(registerCtx, &player)
 	if err != nil {
 		panic(err)
 	}
 	if !r.Success {
 		panic(fmt.Sprintf("Could not register %v", name))
 	}
-
+	//Create reporting channel
 	ch := make(chan Report)
-	defer cleanup(c,p,ch) //remove from store
+	//cleanup connection, client, and channel
+	defer cleanup(conn, client,player,ch) //remove from store
 
+	//listen for interruption and cleanup if found
 	osCh := make(chan os.Signal, 1)
 	signal.Notify(osCh, os.Interrupt)
-
 	go func(){
 		<-osCh
-		cleanup(c,p,ch)
+		cleanup(conn,client,player,ch)
 
 	}()
 
-
-
+	//get stats at interval
 	go monitor(ch)
 
+	//collect stats and send to director
 	for {
 		select{
 		case x := <- ch:
 			ctx, _ := context.WithTimeout(context.Background(), time.Second)
-			r,err := c.Report(ctx, &pb.PlayerReport{Name:name, Mem:x.Mem,SongIds:make([]int64, 0)})
+			r,err := client.Report(ctx, &pb.PlayerReport{Name:name, Mem:x.Mem,SongIds:make([]int64, 0)})
 			if err != nil || !r.Success{
 				log.Fatal("Could not communicate with director")
 			}
 		}
 	}
-
 }
 
+//Monitor stats and send to channel at interval
 func monitor(ch chan Report) {
 	memStats := runtime.MemStats{}
 	for {
@@ -89,11 +90,17 @@ func monitor(ch chan Report) {
 	}
 
 }
+//cleanup connection, client, and report channel
+func cleanup(connection *grpc.ClientConn, client pb.DirectorClient, p pb.Player, playerReportChannel chan Report){
+	//close channel for goroutine collecting report info
+	close(playerReportChannel)
 
-func cleanup(c pb.DirectorClient, p pb.Player, ch chan Report){
-	fmt.Printf("I am running cleanup!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
-	close(ch) //close channel to stop goroutine
-
+	//Unregister player from director
 	removeCtx, _ := context.WithTimeout(context.Background(), time.Second)
-	c.RemovePlayer(removeCtx, &p)
+	r,err := client.RemovePlayer(removeCtx, &p)
+	if err != nil || !r.Success{
+		//TODO handle this with retries
+	}
+	//Close connection to director
+	connection.Close()
 }
