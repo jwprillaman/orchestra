@@ -10,11 +10,11 @@ A tool to manage threads and system information across multiple machines. A dire
 
 Run a director
 ```
-orchestra -service=director -port 50001
+orchestra -s director -p 50001
 ```
 
 Run player
 ```
-orchestra -service=player -address=localhost:50001
+orchestra -s player -a localhost:50001 -n myPlayer
 ```
 
