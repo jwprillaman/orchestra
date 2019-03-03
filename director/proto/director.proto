@@ -39,6 +39,13 @@ message Response {
 
 message PlayerReport {
 	string name = 1;
-	uint64 mem = 2;
-	repeated int64 songIds = 3;
+	uint64 Alloc = 2;
+	uint64 TotalAlloc = 3;
+	uint64 Sys = 4;
+	uint64 Mallocs = 5;
+	uint64 Frees = 6;
+	uint64 LiveObjects = 7;
+	uint64 PauseTotalNs = 8;
+	uint32 NumGC =9;
+	repeated int64 songIds = 10;
 }

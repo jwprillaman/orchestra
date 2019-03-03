@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/jwprillaman/orchestra/director/proto"
-	"github.com/jwprillaman/orchestra/player"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -14,11 +13,11 @@ import (
 type server struct{}
 
 type playerStore struct {
-	store map[string]*player.Model
+	store map[string]*pb.PlayerReport
 	mux sync.Mutex
 }
 
-	var allPlayers = &playerStore{make(map[string]*player.Model),sync.Mutex{}}
+	var allPlayers = &playerStore{make(map[string]*pb.PlayerReport),sync.Mutex{}}
 
 
 func (s *server) GetPlayers(context context.Context, filter *pb.Filter) (*pb.Players, error) {
@@ -48,7 +47,7 @@ func (s *server) RegisterPlayer(context context.Context, input *pb.Player) (*pb.
 		success = false
 		msg = "name already registered"
 	} else {
-		allPlayers.store[input.Name] = &player.Model{Address: input.Name, SongIds: make([]int64, 0), Mem:0}
+		allPlayers.store[input.Name] = &pb.PlayerReport{}
 	}
 	allPlayers.mux.Unlock()
 	return &pb.Response{Success: success, Msg: msg}, nil
@@ -63,12 +62,11 @@ func (s *server) RemovePlayer(context context.Context, player *pb.Player) (*pb.R
 }
 
 func (s *server) Report(context context.Context, report *pb.PlayerReport) (*pb.Response, error) {
-	fmt.Printf("Player : %v\n\tMem : %v\n\tSongs : %v\n", report.Mem, report.Mem, len(report.SongIds))
+	fmt.Println(report)
 	success := true
 	msg := "success"
-	if v, exists := allPlayers.store[report.Name]; exists {
-		v.Mem = report.Mem
-		v.SongIds = report.SongIds
+	if _, exists := allPlayers.store[report.Name]; exists {
+		allPlayers.store[report.Name] = report
 	} else {
 		success = false
 		msg = fmt.Sprintf("%v is not registered with director\n", report.Name)

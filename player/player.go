@@ -13,14 +13,15 @@ import (
 	pb "github.com/jwprillaman/orchestra/director/proto"
 )
 
-type Model struct {
-	Address string
-	SongIds []int64
-	Mem uint64
-}
-
 type Report struct {
-	Mem uint64
+	Alloc, //allocated bytes on heap
+	TotalAlloc, //max bytes allocated on heap
+	Sys, //total memory from os
+	Mallocs, //number of allocations
+	Frees, //number of deallocations
+	LiveObjects, //total GC pauses since app start
+	PauseTotalNs uint64 //number of completed GC cycle
+	NumGC uint32
 }
 const (
 	reportFrequency int = 1
@@ -68,7 +69,7 @@ func Start(name string, address string){
 		select{
 		case x := <- ch:
 			ctx, _ := context.WithTimeout(context.Background(), time.Second)
-			r,err := client.Report(ctx, &pb.PlayerReport{Name:name, Mem:x.Mem,SongIds:make([]int64, 0)})
+			r,err := client.Report(ctx, &pb.PlayerReport{Name:name, Alloc: x.Alloc, TotalAlloc:x.TotalAlloc,Sys:x.Sys,Mallocs:x.Mallocs,Frees:x.Frees,LiveObjects:x.LiveObjects,PauseTotalNs:x.PauseTotalNs,NumGC:x.NumGC,SongIds:make([]int64, 0)})
 			if err != nil || !r.Success{
 				log.Fatal("Could not communicate with director")
 			}
@@ -78,11 +79,11 @@ func Start(name string, address string){
 
 //Monitor stats and send to channel at interval
 func monitor(ch chan Report) {
-	memStats := runtime.MemStats{}
+	stats := runtime.MemStats{}
 	for {
-		runtime.ReadMemStats(&memStats)
+		runtime.ReadMemStats(&stats)
 		select {
-		case ch <- Report{memStats.Sys}:
+		case ch <- Report{stats.Alloc,stats.TotalAlloc, stats.Sys,stats.Mallocs,stats.Frees,stats.Mallocs - stats.Frees,stats.PauseTotalNs, stats.NumGC}:
 		case <-ch:
 			return
 		}
