@@ -14,6 +14,7 @@ func main() {
 	address := flag.String("a", "", "Address")
 	name := flag.String("n", "", "Name")
 	cmd := flag.String("c", "", "Command")
+	input := flag.String("i", "", "Command Input")
 
 	flag.Parse()
 
@@ -21,9 +22,11 @@ func main() {
 	fmt.Println("service :", *service)
 	fmt.Println("port :", *port)
 	fmt.Println("address :", *address)
+	fmt.Println("command :", *cmd)
+	fmt.Println("input :", *input)
 
 	if *cmd != "" && *address != "" {
-		command.Run(*address, *cmd)
+		command.Run(*address, *cmd, *input)
 	}
 
 	switch *service {

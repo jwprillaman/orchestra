@@ -60,6 +60,12 @@ type server struct{}
 
 func (*server) Play(ctx context.Context, req *playerProto.PlayRequest) (*playerProto.PlayResponse, error) {
 	cmd := exec.Command(req.Name, req.Params...)
+	err := cmd.Start()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("started : ", cmd.Process.Pid)
+
 	allSongs.Add(int64(cmd.Process.Pid))
 	return &playerProto.PlayResponse{}, nil
 }
