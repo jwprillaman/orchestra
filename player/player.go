@@ -43,9 +43,14 @@ func Start(directorAddress string, port int) {
 	}
 	s := grpc.NewServer()
 	playerProto.RegisterPlayerServer(s, &server{})
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
+
+	fmt.Println("Did I get here?")
 
 	//connect to director and create client
 	conn, err := grpc.Dial(directorAddress, grpc.WithInsecure())
