@@ -10,47 +10,39 @@ import (
 	"runtime"
 	"time"
 
-	pb "github.com/jwprillaman/orchestra/director/proto"
+	directorProto "github.com/jwprillaman/orchestra/director/proto"
 )
-
-type Report struct {
-	Alloc, //allocated bytes on heap
-	TotalAlloc, //max bytes allocated on heap
-	Sys, //total memory from os
-	Mallocs, //number of allocations
-	Frees, //number of deallocations
-	LiveObjects, //total GC pauses since app start
-	PauseTotalNs uint64 //number of completed GC cycle
-	NumGC uint32
-}
 
 const (
 	reportFrequency int = 1
 )
 
+var playerName string;
+
 //Register player and begin send stats to director
 func Start(name string, address string) {
+	playerName = name
 	//connect to director and create client
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v\n", err)
 	}
 	defer conn.Close()
-	client := pb.NewDirectorClient(conn)
+	client := directorProto.NewDirectorClient(conn)
 
 	//register player with director
 	registerCtx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	player := pb.Player{Name: name}
+	player := directorProto.Player{Name: playerName}
 	r, err := client.RegisterPlayer(registerCtx, &player)
 	if err != nil {
 		panic(err)
 	}
 	if !r.Success {
-		panic(fmt.Sprintf("Could not register %v", name))
+		panic(fmt.Sprintf("Could not register %v", playerName))
 	}
 	//Create reporting channel
-	ch := make(chan Report)
+	ch := make(chan directorProto.PlayerReport)
 	//cleanup connection, client, and channel
 	defer cleanup(conn, client, player, ch) //remove from store
 
@@ -71,7 +63,7 @@ func Start(name string, address string) {
 		select {
 		case x := <-ch:
 			ctx, _ := context.WithTimeout(context.Background(), time.Second)
-			r, err := client.Report(ctx, &pb.PlayerReport{Name: name, Alloc: x.Alloc, TotalAlloc: x.TotalAlloc, Sys: x.Sys, Mallocs: x.Mallocs, Frees: x.Frees, LiveObjects: x.LiveObjects, PauseTotalNs: x.PauseTotalNs, NumGC: x.NumGC, SongIds: make([]int64, 0)})
+			r, err := client.Report(ctx, &directorProto.PlayerReport{Name: name, Alloc: x.Alloc, TotalAlloc: x.TotalAlloc, Sys: x.Sys, Mallocs: x.Mallocs, Frees: x.Frees, LiveObjects: x.LiveObjects, PauseTotalNs: x.PauseTotalNs, NumGC: x.NumGC, SongIds: make([]int64, 0)})
 			if err != nil || !r.Success {
 				log.Fatal("Could not communicate with director")
 			}
@@ -80,12 +72,12 @@ func Start(name string, address string) {
 }
 
 //Monitor stats and send to channel at interval
-func monitor(ch chan Report) {
+func monitor(ch chan directorProto.PlayerReport) {
 	stats := runtime.MemStats{}
 	for {
 		runtime.ReadMemStats(&stats)
 		select {
-		case ch <- Report{stats.Alloc, stats.TotalAlloc, stats.Sys, stats.Mallocs, stats.Frees, stats.Mallocs - stats.Frees, stats.PauseTotalNs, stats.NumGC}:
+		case ch <- directorProto.PlayerReport{Name:playerName,Alloc:stats.Alloc, TotalAlloc:stats.TotalAlloc, Sys:stats.Sys, Mallocs:stats.Mallocs, Frees:stats.Frees, LiveObjects:stats.Mallocs - stats.Frees, PauseTotalNs:stats.PauseTotalNs, NumGC:stats.NumGC, SongIds:make([]int64,0)}:
 		case <-ch:
 			return
 		}
@@ -95,7 +87,7 @@ func monitor(ch chan Report) {
 }
 
 //cleanup connection, client, and report channel
-func cleanup(connection *grpc.ClientConn, client pb.DirectorClient, p pb.Player, playerReportChannel chan Report) {
+func cleanup(connection *grpc.ClientConn, client directorProto.DirectorClient, p directorProto.Player, playerReportChannel chan directorProto.PlayerReport) {
 	//close channel for goroutine collecting report info
 	close(playerReportChannel)
 
