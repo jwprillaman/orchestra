@@ -1,0 +1,20 @@
+syntax="proto3";
+
+package proto;
+
+service Player {
+    rpc Play(Song) returns (Response) {}
+    rpc Stop(Song) returns (Response) {}
+}
+
+message Song {
+    string Name = 1;
+    string Src = 2;
+    repeated string Params = 3;
+}
+
+message Response {
+    bool Success = 1;
+    int64 id = 2;
+    string Msg = 3;
+}

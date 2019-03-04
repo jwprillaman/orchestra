@@ -5,25 +5,50 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"runtime"
 	"time"
 
 	directorProto "github.com/jwprillaman/orchestra/director/proto"
+	playerProto "github.com/jwprillaman/orchestra/player/proto"
 )
 
 const (
 	reportFrequency int = 1
 )
 
-var playerName string;
+var playerName string
+
+type server struct{}
+
+func (*server) Play(ctx context.Context, song *playerProto.Song) (*playerProto.Response, error) {
+	return &playerProto.Response{}, nil
+}
+
+func (*server) Stop(ctx context.Context, song *playerProto.Song) (*playerProto.Response, error) {
+	return &playerProto.Response{}, nil
+}
 
 //Register player and begin send stats to director
-func Start(name string, address string) {
-	playerName = name
+func Start(directorAddress string, port int) {
+	playerName = fmt.Sprintf("localhost:%v", port)
+
+	//create player service
+	fmt.Printf("starting player at : %v\n", port)
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", port))
+	if err != nil {
+		log.Fatalf("failed to listen on : %v\n", err)
+	}
+	s := grpc.NewServer()
+	playerProto.RegisterPlayerServer(s, &server{})
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+
 	//connect to director and create client
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	conn, err := grpc.Dial(directorAddress, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v\n", err)
 	}
@@ -63,7 +88,7 @@ func Start(name string, address string) {
 		select {
 		case x := <-ch:
 			ctx, _ := context.WithTimeout(context.Background(), time.Second)
-			r, err := client.Report(ctx, &directorProto.PlayerReport{Name: name, Alloc: x.Alloc, TotalAlloc: x.TotalAlloc, Sys: x.Sys, Mallocs: x.Mallocs, Frees: x.Frees, LiveObjects: x.LiveObjects, PauseTotalNs: x.PauseTotalNs, NumGC: x.NumGC, SongIds: make([]int64, 0)})
+			r, err := client.Report(ctx, &directorProto.PlayerReport{Name: playerName, Alloc: x.Alloc, TotalAlloc: x.TotalAlloc, Sys: x.Sys, Mallocs: x.Mallocs, Frees: x.Frees, LiveObjects: x.LiveObjects, PauseTotalNs: x.PauseTotalNs, NumGC: x.NumGC, SongIds: make([]int64, 0)})
 			if err != nil || !r.Success {
 				log.Fatal("Could not communicate with director")
 			}
@@ -77,7 +102,7 @@ func monitor(ch chan directorProto.PlayerReport) {
 	for {
 		runtime.ReadMemStats(&stats)
 		select {
-		case ch <- directorProto.PlayerReport{Name:playerName,Alloc:stats.Alloc, TotalAlloc:stats.TotalAlloc, Sys:stats.Sys, Mallocs:stats.Mallocs, Frees:stats.Frees, LiveObjects:stats.Mallocs - stats.Frees, PauseTotalNs:stats.PauseTotalNs, NumGC:stats.NumGC, SongIds:make([]int64,0)}:
+		case ch <- directorProto.PlayerReport{Name: playerName, Alloc: stats.Alloc, TotalAlloc: stats.TotalAlloc, Sys: stats.Sys, Mallocs: stats.Mallocs, Frees: stats.Frees, LiveObjects: stats.Mallocs - stats.Frees, PauseTotalNs: stats.PauseTotalNs, NumGC: stats.NumGC, SongIds: make([]int64, 0)}:
 		case <-ch:
 			return
 		}

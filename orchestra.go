@@ -30,7 +30,7 @@ func main() {
 	case "director":
 		director.Start(*port)
 	case "player":
-		player.Start(*name, *address)
+		player.Start(*address, *port)
 	default:
 		fmt.Println("invalid service : ", *service)
 	}
