@@ -50,8 +50,6 @@ func Start(directorAddress string, port int) {
 		}
 	}()
 
-	fmt.Println("Did I get here?")
-
 	//connect to director and create client
 	conn, err := grpc.Dial(directorAddress, grpc.WithInsecure())
 	if err != nil {
