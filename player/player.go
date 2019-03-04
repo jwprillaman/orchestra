@@ -7,8 +7,10 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/exec"
 	"os/signal"
 	"runtime"
+	"sync"
 	"time"
 
 	directorProto "github.com/jwprillaman/orchestra/director/proto"
@@ -20,15 +22,50 @@ const (
 )
 
 var playerName string
+var allSongs = songStore{make(map[int64]struct{}), sync.Mutex{}, make([]int64, 0)}
+
+type songStore struct {
+	store map[int64]struct{}
+	mux   sync.Mutex
+	ids   []int64
+}
+
+func (s *songStore) Add(key int64) {
+	s.mux.Lock()
+	if _, exists := s.store[key]; !exists {
+		s.store[key] = struct{}{}
+		s.ids = append(s.ids, key)
+	}
+	s.mux.Unlock()
+}
+
+func (s *songStore) Remove(key int64) {
+	s.mux.Lock()
+	if _, exists := s.store[key]; exists {
+		delete(s.store, key)
+		s.ids[key] = s.ids[len(s.ids)-1]
+		s.ids = s.ids[:len(s.ids)-1]
+	}
+	s.mux.Unlock()
+}
+
+func (s *songStore) Contains(key int64) bool {
+	s.mux.Lock()
+	_, output := s.store[key]
+	s.mux.Unlock()
+	return output
+}
 
 type server struct{}
 
-func (*server) Play(ctx context.Context, song *playerProto.Song) (*playerProto.Response, error) {
-	return &playerProto.Response{}, nil
+func (*server) Play(ctx context.Context, req *playerProto.PlayRequest) (*playerProto.PlayResponse, error) {
+	cmd := exec.Command(req.Name, req.Params...)
+	allSongs.Add(int64(cmd.Process.Pid))
+	return &playerProto.PlayResponse{}, nil
 }
 
-func (*server) Stop(ctx context.Context, song *playerProto.Song) (*playerProto.Response, error) {
-	return &playerProto.Response{}, nil
+func (*server) Stop(ctx context.Context, song *playerProto.StopRequest) (*playerProto.StopResponse, error) {
+	return &playerProto.StopResponse{}, nil
 }
 
 //Register player and begin send stats to director
@@ -91,7 +128,7 @@ func Start(directorAddress string, port int) {
 		select {
 		case x := <-ch:
 			ctx, _ := context.WithTimeout(context.Background(), time.Second)
-			r, err := client.Report(ctx, &directorProto.PlayerReport{Name: playerName, Alloc: x.Alloc, TotalAlloc: x.TotalAlloc, Sys: x.Sys, Mallocs: x.Mallocs, Frees: x.Frees, LiveObjects: x.LiveObjects, PauseTotalNs: x.PauseTotalNs, NumGC: x.NumGC, SongIds: make([]int64, 0)})
+			r, err := client.Report(ctx, &directorProto.PlayerReport{Name: playerName, Alloc: x.Alloc, TotalAlloc: x.TotalAlloc, Sys: x.Sys, Mallocs: x.Mallocs, Frees: x.Frees, LiveObjects: x.LiveObjects, PauseTotalNs: x.PauseTotalNs, NumGC: x.NumGC, SongIds: allSongs.ids})
 			if err != nil || !r.Success {
 				log.Fatal("Could not communicate with director")
 			}
@@ -105,7 +142,7 @@ func monitor(ch chan directorProto.PlayerReport) {
 	for {
 		runtime.ReadMemStats(&stats)
 		select {
-		case ch <- directorProto.PlayerReport{Name: playerName, Alloc: stats.Alloc, TotalAlloc: stats.TotalAlloc, Sys: stats.Sys, Mallocs: stats.Mallocs, Frees: stats.Frees, LiveObjects: stats.Mallocs - stats.Frees, PauseTotalNs: stats.PauseTotalNs, NumGC: stats.NumGC, SongIds: make([]int64, 0)}:
+		case ch <- directorProto.PlayerReport{Name: playerName, Alloc: stats.Alloc, TotalAlloc: stats.TotalAlloc, Sys: stats.Sys, Mallocs: stats.Mallocs, Frees: stats.Frees, LiveObjects: stats.Mallocs - stats.Frees, PauseTotalNs: stats.PauseTotalNs, NumGC: stats.NumGC, SongIds: allSongs.ids}:
 		case <-ch:
 			return
 		}

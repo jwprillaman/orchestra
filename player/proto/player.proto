@@ -3,18 +3,26 @@ syntax="proto3";
 package proto;
 
 service Player {
-    rpc Play(Song) returns (Response) {}
-    rpc Stop(Song) returns (Response) {}
+    rpc Play(PlayRequest) returns (PlayResponse) {}
+    rpc Stop(StopRequest) returns (StopResponse ) {}
 }
 
-message Song {
-    string Name = 1;
-    string Src = 2;
+message PlayRequest {
+    string name = 1;
     repeated string Params = 3;
 }
 
-message Response {
+message PlayResponse {
     bool Success = 1;
     int64 id = 2;
     string Msg = 3;
+}
+
+message StopRequest {
+    int64 id = 1;
+}
+
+message StopResponse {
+    bool Success = 1;
+    string Msg = 2;
 }

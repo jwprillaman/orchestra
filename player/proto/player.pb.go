@@ -23,61 +23,53 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type Song struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=Name,proto3" json:"Name,omitempty"`
-	Src                  string   `protobuf:"bytes,2,opt,name=Src,proto3" json:"Src,omitempty"`
+type PlayRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Params               []string `protobuf:"bytes,3,rep,name=Params,proto3" json:"Params,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Song) Reset()         { *m = Song{} }
-func (m *Song) String() string { return proto.CompactTextString(m) }
-func (*Song) ProtoMessage()    {}
-func (*Song) Descriptor() ([]byte, []int) {
-	return fileDescriptor_player_5460cfdf7ca782a4, []int{0}
+func (m *PlayRequest) Reset()         { *m = PlayRequest{} }
+func (m *PlayRequest) String() string { return proto.CompactTextString(m) }
+func (*PlayRequest) ProtoMessage()    {}
+func (*PlayRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_player_5a478e18fb3bcbb7, []int{0}
 }
-func (m *Song) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Song.Unmarshal(m, b)
+func (m *PlayRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PlayRequest.Unmarshal(m, b)
 }
-func (m *Song) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Song.Marshal(b, m, deterministic)
+func (m *PlayRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PlayRequest.Marshal(b, m, deterministic)
 }
-func (dst *Song) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Song.Merge(dst, src)
+func (dst *PlayRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PlayRequest.Merge(dst, src)
 }
-func (m *Song) XXX_Size() int {
-	return xxx_messageInfo_Song.Size(m)
+func (m *PlayRequest) XXX_Size() int {
+	return xxx_messageInfo_PlayRequest.Size(m)
 }
-func (m *Song) XXX_DiscardUnknown() {
-	xxx_messageInfo_Song.DiscardUnknown(m)
+func (m *PlayRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PlayRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Song proto.InternalMessageInfo
+var xxx_messageInfo_PlayRequest proto.InternalMessageInfo
 
-func (m *Song) GetName() string {
+func (m *PlayRequest) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *Song) GetSrc() string {
-	if m != nil {
-		return m.Src
-	}
-	return ""
-}
-
-func (m *Song) GetParams() []string {
+func (m *PlayRequest) GetParams() []string {
 	if m != nil {
 		return m.Params
 	}
 	return nil
 }
 
-type Response struct {
+type PlayResponse struct {
 	Success              bool     `protobuf:"varint,1,opt,name=Success,proto3" json:"Success,omitempty"`
 	Id                   int64    `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
 	Msg                  string   `protobuf:"bytes,3,opt,name=Msg,proto3" json:"Msg,omitempty"`
@@ -86,45 +78,129 @@ type Response struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Response) Reset()         { *m = Response{} }
-func (m *Response) String() string { return proto.CompactTextString(m) }
-func (*Response) ProtoMessage()    {}
-func (*Response) Descriptor() ([]byte, []int) {
-	return fileDescriptor_player_5460cfdf7ca782a4, []int{1}
+func (m *PlayResponse) Reset()         { *m = PlayResponse{} }
+func (m *PlayResponse) String() string { return proto.CompactTextString(m) }
+func (*PlayResponse) ProtoMessage()    {}
+func (*PlayResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_player_5a478e18fb3bcbb7, []int{1}
 }
-func (m *Response) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Response.Unmarshal(m, b)
+func (m *PlayResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PlayResponse.Unmarshal(m, b)
 }
-func (m *Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Response.Marshal(b, m, deterministic)
+func (m *PlayResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PlayResponse.Marshal(b, m, deterministic)
 }
-func (dst *Response) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Response.Merge(dst, src)
+func (dst *PlayResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PlayResponse.Merge(dst, src)
 }
-func (m *Response) XXX_Size() int {
-	return xxx_messageInfo_Response.Size(m)
+func (m *PlayResponse) XXX_Size() int {
+	return xxx_messageInfo_PlayResponse.Size(m)
 }
-func (m *Response) XXX_DiscardUnknown() {
-	xxx_messageInfo_Response.DiscardUnknown(m)
+func (m *PlayResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PlayResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Response proto.InternalMessageInfo
+var xxx_messageInfo_PlayResponse proto.InternalMessageInfo
 
-func (m *Response) GetSuccess() bool {
+func (m *PlayResponse) GetSuccess() bool {
 	if m != nil {
 		return m.Success
 	}
 	return false
 }
 
-func (m *Response) GetId() int64 {
+func (m *PlayResponse) GetId() int64 {
 	if m != nil {
 		return m.Id
 	}
 	return 0
 }
 
-func (m *Response) GetMsg() string {
+func (m *PlayResponse) GetMsg() string {
+	if m != nil {
+		return m.Msg
+	}
+	return ""
+}
+
+type StopRequest struct {
+	Id                   int64    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopRequest) Reset()         { *m = StopRequest{} }
+func (m *StopRequest) String() string { return proto.CompactTextString(m) }
+func (*StopRequest) ProtoMessage()    {}
+func (*StopRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_player_5a478e18fb3bcbb7, []int{2}
+}
+func (m *StopRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopRequest.Unmarshal(m, b)
+}
+func (m *StopRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopRequest.Marshal(b, m, deterministic)
+}
+func (dst *StopRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopRequest.Merge(dst, src)
+}
+func (m *StopRequest) XXX_Size() int {
+	return xxx_messageInfo_StopRequest.Size(m)
+}
+func (m *StopRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopRequest proto.InternalMessageInfo
+
+func (m *StopRequest) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+type StopResponse struct {
+	Success              bool     `protobuf:"varint,1,opt,name=Success,proto3" json:"Success,omitempty"`
+	Msg                  string   `protobuf:"bytes,2,opt,name=Msg,proto3" json:"Msg,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopResponse) Reset()         { *m = StopResponse{} }
+func (m *StopResponse) String() string { return proto.CompactTextString(m) }
+func (*StopResponse) ProtoMessage()    {}
+func (*StopResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_player_5a478e18fb3bcbb7, []int{3}
+}
+func (m *StopResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopResponse.Unmarshal(m, b)
+}
+func (m *StopResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopResponse.Marshal(b, m, deterministic)
+}
+func (dst *StopResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopResponse.Merge(dst, src)
+}
+func (m *StopResponse) XXX_Size() int {
+	return xxx_messageInfo_StopResponse.Size(m)
+}
+func (m *StopResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopResponse proto.InternalMessageInfo
+
+func (m *StopResponse) GetSuccess() bool {
+	if m != nil {
+		return m.Success
+	}
+	return false
+}
+
+func (m *StopResponse) GetMsg() string {
 	if m != nil {
 		return m.Msg
 	}
@@ -132,8 +208,10 @@ func (m *Response) GetMsg() string {
 }
 
 func init() {
-	proto.RegisterType((*Song)(nil), "proto.Song")
-	proto.RegisterType((*Response)(nil), "proto.Response")
+	proto.RegisterType((*PlayRequest)(nil), "proto.PlayRequest")
+	proto.RegisterType((*PlayResponse)(nil), "proto.PlayResponse")
+	proto.RegisterType((*StopRequest)(nil), "proto.StopRequest")
+	proto.RegisterType((*StopResponse)(nil), "proto.StopResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -148,8 +226,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type PlayerClient interface {
-	Play(ctx context.Context, in *Song, opts ...grpc.CallOption) (*Response, error)
-	Stop(ctx context.Context, in *Song, opts ...grpc.CallOption) (*Response, error)
+	Play(ctx context.Context, in *PlayRequest, opts ...grpc.CallOption) (*PlayResponse, error)
+	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error)
 }
 
 type playerClient struct {
@@ -160,8 +238,8 @@ func NewPlayerClient(cc *grpc.ClientConn) PlayerClient {
 	return &playerClient{cc}
 }
 
-func (c *playerClient) Play(ctx context.Context, in *Song, opts ...grpc.CallOption) (*Response, error) {
-	out := new(Response)
+func (c *playerClient) Play(ctx context.Context, in *PlayRequest, opts ...grpc.CallOption) (*PlayResponse, error) {
+	out := new(PlayResponse)
 	err := c.cc.Invoke(ctx, "/proto.Player/Play", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -169,8 +247,8 @@ func (c *playerClient) Play(ctx context.Context, in *Song, opts ...grpc.CallOpti
 	return out, nil
 }
 
-func (c *playerClient) Stop(ctx context.Context, in *Song, opts ...grpc.CallOption) (*Response, error) {
-	out := new(Response)
+func (c *playerClient) Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error) {
+	out := new(StopResponse)
 	err := c.cc.Invoke(ctx, "/proto.Player/Stop", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -180,8 +258,8 @@ func (c *playerClient) Stop(ctx context.Context, in *Song, opts ...grpc.CallOpti
 
 // PlayerServer is the server API for Player service.
 type PlayerServer interface {
-	Play(context.Context, *Song) (*Response, error)
-	Stop(context.Context, *Song) (*Response, error)
+	Play(context.Context, *PlayRequest) (*PlayResponse, error)
+	Stop(context.Context, *StopRequest) (*StopResponse, error)
 }
 
 func RegisterPlayerServer(s *grpc.Server, srv PlayerServer) {
@@ -189,7 +267,7 @@ func RegisterPlayerServer(s *grpc.Server, srv PlayerServer) {
 }
 
 func _Player_Play_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Song)
+	in := new(PlayRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -201,13 +279,13 @@ func _Player_Play_Handler(srv interface{}, ctx context.Context, dec func(interfa
 		FullMethod: "/proto.Player/Play",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlayerServer).Play(ctx, req.(*Song))
+		return srv.(PlayerServer).Play(ctx, req.(*PlayRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Player_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Song)
+	in := new(StopRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -219,7 +297,7 @@ func _Player_Stop_Handler(srv interface{}, ctx context.Context, dec func(interfa
 		FullMethod: "/proto.Player/Stop",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlayerServer).Stop(ctx, req.(*Song))
+		return srv.(PlayerServer).Stop(ctx, req.(*StopRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -241,21 +319,23 @@ var _Player_serviceDesc = grpc.ServiceDesc{
 	Metadata: "player.proto",
 }
 
-func init() { proto.RegisterFile("player.proto", fileDescriptor_player_5460cfdf7ca782a4) }
+func init() { proto.RegisterFile("player.proto", fileDescriptor_player_5a478e18fb3bcbb7) }
 
-var fileDescriptor_player_5460cfdf7ca782a4 = []byte{
-	// 194 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x29, 0xc8, 0x49, 0xac,
-	0x4c, 0x2d, 0xd2, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x05, 0x53, 0x4a, 0x2e, 0x5c, 0x2c,
-	0xc1, 0xf9, 0x79, 0xe9, 0x42, 0x42, 0x5c, 0x2c, 0x7e, 0x89, 0xb9, 0xa9, 0x12, 0x8c, 0x0a, 0x8c,
-	0x1a, 0x9c, 0x41, 0x60, 0xb6, 0x90, 0x00, 0x17, 0x73, 0x70, 0x51, 0xb2, 0x04, 0x13, 0x58, 0x08,
-	0xc4, 0x14, 0x12, 0xe3, 0x62, 0x0b, 0x48, 0x2c, 0x4a, 0xcc, 0x2d, 0x96, 0x60, 0x56, 0x60, 0xd6,
-	0xe0, 0x0c, 0x82, 0xf2, 0x94, 0xdc, 0xb8, 0x38, 0x82, 0x52, 0x8b, 0x0b, 0xf2, 0xf3, 0x8a, 0x53,
-	0x85, 0x24, 0xb8, 0xd8, 0x83, 0x4b, 0x93, 0x93, 0x53, 0x8b, 0x8b, 0xc1, 0x86, 0x71, 0x04, 0xc1,
-	0xb8, 0x42, 0x7c, 0x5c, 0x4c, 0x99, 0x29, 0x60, 0xe3, 0x98, 0x83, 0x98, 0x32, 0x53, 0x40, 0xe6,
-	0xfb, 0x16, 0xa7, 0x4b, 0x30, 0x43, 0xcc, 0xf7, 0x2d, 0x4e, 0x37, 0x8a, 0xe0, 0x62, 0x0b, 0x00,
-	0x3b, 0x52, 0x48, 0x8d, 0x8b, 0x05, 0xc4, 0x12, 0xe2, 0x86, 0x38, 0x57, 0x0f, 0xe4, 0x48, 0x29,
-	0x7e, 0x28, 0x07, 0x66, 0x97, 0x12, 0x03, 0x48, 0x5d, 0x70, 0x49, 0x7e, 0x01, 0x21, 0x75, 0x49,
-	0x6c, 0x60, 0x11, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0x3c, 0x34, 0x33, 0xf4, 0x05, 0x01,
-	0x00, 0x00,
+var fileDescriptor_player_5a478e18fb3bcbb7 = []byte{
+	// 225 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x90, 0xc1, 0x4a, 0xc4, 0x30,
+	0x10, 0x86, 0x37, 0xc9, 0x5a, 0xdd, 0xd9, 0x22, 0x32, 0x82, 0x04, 0x41, 0x28, 0x39, 0xf5, 0xb4,
+	0xa0, 0x9e, 0xf4, 0x11, 0x04, 0xa1, 0xa4, 0x4f, 0x10, 0xdb, 0x20, 0x85, 0xb6, 0x89, 0x4d, 0x7b,
+	0xe8, 0xdb, 0x4b, 0x92, 0xb6, 0xd4, 0x93, 0xa7, 0xfc, 0x33, 0xe1, 0x9b, 0xff, 0x9f, 0x81, 0xd4,
+	0xb6, 0x6a, 0xd6, 0xc3, 0xc5, 0x0e, 0x66, 0x34, 0x78, 0x15, 0x1e, 0xf1, 0x06, 0xe7, 0xa2, 0x55,
+	0xb3, 0xd4, 0x3f, 0x93, 0x76, 0x23, 0x22, 0x1c, 0x7b, 0xd5, 0x69, 0x4e, 0x32, 0x92, 0x9f, 0x64,
+	0xd0, 0xf8, 0x00, 0x49, 0xa1, 0x06, 0xd5, 0x39, 0xce, 0x32, 0x96, 0x9f, 0xe4, 0x52, 0x89, 0x0f,
+	0x48, 0x23, 0xea, 0xac, 0xe9, 0x9d, 0x46, 0x0e, 0xd7, 0xe5, 0x54, 0x55, 0xda, 0xb9, 0x80, 0xdf,
+	0xc8, 0xb5, 0xc4, 0x5b, 0xa0, 0x4d, 0xcd, 0x69, 0x46, 0x72, 0x26, 0x69, 0x53, 0xe3, 0x1d, 0xb0,
+	0x4f, 0xf7, 0xcd, 0x59, 0x30, 0xf1, 0x52, 0x3c, 0xc1, 0xb9, 0x1c, 0x8d, 0x5d, 0x63, 0x44, 0x80,
+	0xac, 0x80, 0x78, 0x87, 0x34, 0x7e, 0xff, 0x6b, 0xb5, 0x8c, 0xa6, 0xdb, 0xe8, 0x97, 0x1e, 0x92,
+	0x22, 0x2c, 0x8e, 0xcf, 0x70, 0xf4, 0x0a, 0x31, 0x9e, 0xe0, 0xb2, 0x5b, 0xfc, 0xf1, 0xfe, 0x4f,
+	0x2f, 0xda, 0x88, 0x83, 0x47, 0xbc, 0xf1, 0x86, 0xec, 0x42, 0x6e, 0xc8, 0x3e, 0x99, 0x38, 0x7c,
+	0x25, 0xa1, 0xfb, 0xfa, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x17, 0x73, 0x7e, 0x22, 0x6f, 0x01, 0x00,
+	0x00,
 }
