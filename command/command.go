@@ -8,7 +8,8 @@ import (
 	"log"
 	"time"
 )
-func Run(address string, input string){
+
+func Run(address string, input string) {
 
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
@@ -17,11 +18,10 @@ func Run(address string, input string){
 	defer conn.Close()
 	c := pb.NewDirectorClient(conn)
 
-
 	switch input {
 	case "players":
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		p,err :=c.GetPlayers(ctx, &pb.Filter{PlayerName:"",SongIds:""})
+		p, err := c.GetPlayers(ctx, &pb.Filter{PlayerName: "", SongIds: ""})
 		defer cancel()
 
 		if err != nil {

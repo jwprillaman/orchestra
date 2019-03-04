@@ -14,11 +14,10 @@ type server struct{}
 
 type playerStore struct {
 	store map[string]*pb.PlayerReport
-	mux sync.Mutex
+	mux   sync.Mutex
 }
 
-	var allPlayers = &playerStore{make(map[string]*pb.PlayerReport),sync.Mutex{}}
-
+var allPlayers = &playerStore{make(map[string]*pb.PlayerReport), sync.Mutex{}}
 
 func (s *server) GetPlayers(context context.Context, filter *pb.Filter) (*pb.Players, error) {
 	log.Printf("Filter : %v\n", filter.PlayerName)
