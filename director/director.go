@@ -62,6 +62,7 @@ func (s *server) RemovePlayer(context context.Context, player *pb.Player) (*pb.R
 
 func (s *server) Report(context context.Context, report *pb.PlayerReport) (*pb.Response, error) {
 	fmt.Println(report)
+	fmt.Println("\tsongs : ", report.SongIds)
 	success := true
 	msg := "success"
 	if _, exists := allPlayers.store[report.Name]; exists {

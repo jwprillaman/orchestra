@@ -43,7 +43,11 @@ func (s *songStore) Remove(key int64) {
 	s.mux.Lock()
 	if _, exists := s.store[key]; exists {
 		delete(s.store, key)
-		s.ids[key] = s.ids[len(s.ids)-1]
+		for i := range s.ids {
+			if s.ids[i] == key{
+				s.ids[i] = s.ids[len(s.ids)-1]
+			}
+		}
 		s.ids = s.ids[:len(s.ids)-1]
 	}
 	s.mux.Unlock()
@@ -66,7 +70,20 @@ func (*server) Play(ctx context.Context, req *playerProto.PlayRequest) (*playerP
 	}
 	fmt.Println("started : ", cmd.Process.Pid)
 
+	//add to songids
 	allSongs.Add(int64(cmd.Process.Pid))
+	//wait until finished and remove from songids
+	go func() {
+		fmt.Println("looking at : ", cmd.Process.Pid)
+		processState,err := cmd.Process.Wait()
+		fmt.Println(err)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(processState.Exited())
+		fmt.Println("Done waiting")
+		allSongs.Remove(int64(cmd.Process.Pid))
+	}()
 	return &playerProto.PlayResponse{}, nil
 }
 
