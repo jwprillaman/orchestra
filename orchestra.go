@@ -6,6 +6,7 @@ import (
 	"github.com/jwprillaman/orchestra/command"
 	"github.com/jwprillaman/orchestra/director"
 	"github.com/jwprillaman/orchestra/player"
+	"github.com/jwprillaman/orchestra/song"
 )
 
 func main() {
@@ -34,6 +35,8 @@ func main() {
 		director.Start(*port)
 	case "player":
 		player.Start(*address, *port)
+	case "song":
+		song.Start(*address, *input)
 	default:
 		fmt.Println("invalid service : ", *service)
 	}
