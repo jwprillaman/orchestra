@@ -44,7 +44,7 @@ func (s *songStore) Remove(key int64) {
 	if _, exists := s.store[key]; exists {
 		delete(s.store, key)
 		for i := range s.ids {
-			if s.ids[i] == key{
+			if s.ids[i] == key {
 				s.ids[i] = s.ids[len(s.ids)-1]
 			}
 		}
@@ -75,7 +75,7 @@ func (*server) Play(ctx context.Context, req *playerProto.PlayRequest) (*playerP
 	//wait until finished and remove from songids
 	go func() {
 		fmt.Println("looking at : ", cmd.Process.Pid)
-		processState,err := cmd.Process.Wait()
+		processState, err := cmd.Process.Wait()
 		fmt.Println(err)
 		if err != nil {
 			fmt.Println(err)

@@ -18,7 +18,6 @@ func main() {
 
 	flag.Parse()
 
-	fmt.Println("name : " + *name)
 	fmt.Println("service :", *service)
 	fmt.Println("port :", *port)
 	fmt.Println("address :", *address)
