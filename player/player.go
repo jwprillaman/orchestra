@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -64,24 +65,39 @@ type server struct{}
 
 func (*server) Play(ctx context.Context, req *playerProto.PlayRequest) (*playerProto.PlayResponse, error) {
 	cmd := exec.Command(req.Name, req.Params...)
-	err := cmd.Start()
+	//get std and std out
+	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("started : ", cmd.Process.Pid)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		panic(err)
+	}
+
+	err = cmd.Start()
+	if err != nil {
+		panic(err)
+	}
 
 	//add to songids
 	allSongs.Add(int64(cmd.Process.Pid))
 	//wait until finished and remove from songids
 	go func() {
-		fmt.Println("looking at : ", cmd.Process.Pid)
+		eo, _ := ioutil.ReadAll(stdout)
+		so, _ := ioutil.ReadAll(stderr)
+		fmt.Println(string(eo))
+		fmt.Println(string(so))
+
 		processState, err := cmd.Process.Wait()
 		fmt.Println(err)
 		if err != nil {
 			fmt.Println(err)
 		}
 		fmt.Println(processState.Exited())
-		fmt.Println("Done waiting")
+		fmt.Println(processState.Success())
+		fmt.Println(processState.String())
 		allSongs.Remove(int64(cmd.Process.Pid))
 	}()
 	return &playerProto.PlayResponse{}, nil
@@ -119,7 +135,7 @@ func Start(directorAddress string, port int) {
 	client := directorProto.NewDirectorClient(conn)
 
 	//register player with director
-	registerCtx, cancel := context.WithTimeout(context.Background(), time.Second)
+	registerCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	player := directorProto.Player{Name: playerName}
 	r, err := client.RegisterPlayer(registerCtx, &player)

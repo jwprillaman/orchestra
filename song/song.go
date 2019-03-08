@@ -30,5 +30,6 @@ func Start(address string, input string) {
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Println(r)
 }
