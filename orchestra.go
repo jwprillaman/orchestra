@@ -13,7 +13,6 @@ func main() {
 	service := flag.String("s", "", "Service")
 	port := flag.Int("p", -1, "Port")
 	address := flag.String("a", "", "Address")
-	name := flag.String("n", "", "Name")
 	cmd := flag.String("c", "", "Command")
 	input := flag.String("i", "", "Command Input")
 
