@@ -18,22 +18,25 @@ func main() {
 
 	flag.Parse()
 
-	fmt.Println("service :", *service)
-	fmt.Println("port :", *port)
-	fmt.Println("address :", *address)
-	fmt.Println("command :", *cmd)
-	fmt.Println("input :", *input)
-
 	if *cmd != "" && *address != "" {
 		command.Run(*address, *cmd, *input)
 	}
 
 	switch *service {
 	case "director":
+		if *port == -1 {
+			panic("Director service requires a valid port")
+		}
 		director.Start(*port)
 	case "player":
+		if *port == -1 || *address == "" {
+			panic("Player service requires a valid port and director address")
+		}
 		player.Start(*address, *port)
 	case "song":
+		if *address == "" || *input == "" {
+			panic("Song service requires a valid input and player address")
+		}
 		song.Start(*address, *input)
 	default:
 		fmt.Println("invalid service : ", *service)
