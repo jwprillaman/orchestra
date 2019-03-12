@@ -15,6 +15,11 @@ orchestra -s director -p 50001
 
 Run player
 ```
-orchestra -s player -a localhost:50001 -n myPlayer
+orchestra -s player -a localhost:50002
+```
+
+Run song
+```
+orchestra -s song -a localhost:50001 -i "/bin/bash orchestra/example/song.sh"
 ```
 
