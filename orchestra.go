@@ -6,7 +6,6 @@ import (
 	"github.com/jwprillaman/orchestra/command"
 	"github.com/jwprillaman/orchestra/director"
 	"github.com/jwprillaman/orchestra/player"
-	"github.com/jwprillaman/orchestra/song"
 )
 
 func main() {
@@ -34,10 +33,13 @@ func main() {
 		}
 		player.Start(*address, *port)
 	case "song":
-		if *address == "" || *input == "" {
-			panic("Song service requires a valid input and player address")
+		if *input == "" || *address == ""{
+			panic("Song service requires a valid input and director address")
 		}
-		song.Play(*address, *input)
+		err := director.Play(*address,*input)
+		if err != nil {
+			panic(err)
+		}
 	default:
 		fmt.Println("invalid service : ", *service)
 	}

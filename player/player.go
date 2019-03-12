@@ -3,6 +3,7 @@ package player
 import (
 	"context"
 	"fmt"
+	"github.com/capnm/sysinfo"
 	"google.golang.org/grpc"
 	"io/ioutil"
 	"log"
@@ -167,7 +168,7 @@ func Start(directorAddress string, port int) {
 		select {
 		case x := <-ch:
 			ctx, _ := context.WithTimeout(context.Background(), time.Second)
-			r, err := client.Report(ctx, &directorProto.PlayerReport{Name: playerName, Alloc: x.Alloc, TotalAlloc: x.TotalAlloc, Sys: x.Sys, Mallocs: x.Mallocs, Frees: x.Frees, LiveObjects: x.LiveObjects, PauseTotalNs: x.PauseTotalNs, NumGC: x.NumGC, SongIds: allSongs.ids})
+			r, err := client.Report(ctx, &directorProto.PlayerReport{Name: playerName, TotalRam: x.TotalRam, FreeRam:x.FreeRam, SongIds: allSongs.ids})
 			if err != nil || !r.Success {
 				log.Fatal("Could not communicate with director")
 			}
@@ -179,9 +180,10 @@ func Start(directorAddress string, port int) {
 func monitor(ch chan directorProto.PlayerReport) {
 	stats := runtime.MemStats{}
 	for {
+		si := sysinfo.Get()
 		runtime.ReadMemStats(&stats)
 		select {
-		case ch <- directorProto.PlayerReport{Name: playerName, Alloc: stats.Alloc, TotalAlloc: stats.TotalAlloc, Sys: stats.Sys, Mallocs: stats.Mallocs, Frees: stats.Frees, LiveObjects: stats.Mallocs - stats.Frees, PauseTotalNs: stats.PauseTotalNs, NumGC: stats.NumGC, SongIds: allSongs.ids}:
+		case ch <- directorProto.PlayerReport{Name: playerName, TotalRam: si.TotalRam, FreeRam: si.FreeRam, SongIds: allSongs.ids}:
 		case <-ch:
 			return
 		}
