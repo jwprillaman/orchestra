@@ -168,7 +168,7 @@ func Start(directorAddress string, port int) {
 		select {
 		case x := <-ch:
 			ctx, _ := context.WithTimeout(context.Background(), time.Second)
-			r, err := client.Report(ctx, &directorProto.PlayerReport{Name: playerName, TotalRam: x.TotalRam, FreeRam:x.FreeRam, SongIds: allSongs.ids})
+			r, err := client.Report(ctx, &directorProto.PlayerReport{Name: playerName, TotalRam: x.TotalRam, FreeRam: x.FreeRam, SongIds: allSongs.ids})
 			if err != nil || !r.Success {
 				log.Fatal("Could not communicate with director")
 			}

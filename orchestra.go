@@ -33,10 +33,10 @@ func main() {
 		}
 		player.Start(*address, *port)
 	case "song":
-		if *input == "" || *address == ""{
+		if *input == "" || *address == "" {
 			panic("Song service requires a valid input and director address")
 		}
-		err := director.Play(*address,*input)
+		err := director.Play(*address, *input)
 		if err != nil {
 			panic(err)
 		}

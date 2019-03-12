@@ -100,7 +100,7 @@ func (s *server) Report(context context.Context, report *pb.PlayerReport) (*pb.R
 
 func (s *server) GetBestPlayer(context context.Context, report *pb.Filter) (*pb.Player, error) {
 	address, err := allPlayers.GetBest()
-	return &pb.Player{Name:address},err
+	return &pb.Player{Name: address}, err
 }
 
 func Start(port int) {
