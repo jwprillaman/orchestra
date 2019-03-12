@@ -37,7 +37,7 @@ func main() {
 		if *address == "" || *input == "" {
 			panic("Song service requires a valid input and player address")
 		}
-		song.Start(*address, *input)
+		song.Play(*address, *input)
 	default:
 		fmt.Println("invalid service : ", *service)
 	}

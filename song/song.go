@@ -1,35 +1,26 @@
 package song
 
 import (
-	"context"
+	"errors"
 	"fmt"
-	playerProto "github.com/jwprillaman/orchestra/player/proto"
-	"google.golang.org/grpc"
-	"log"
+	"github.com/jwprillaman/orchestra/song/grpc"
 	"strings"
-	"time"
 )
 
-func Start(address string, input string) {
+const (
+	communication_implementation = "grpc"
+)
 
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %v\n", err)
-	}
-	defer conn.Close()
-	c := playerProto.NewPlayerClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-
+func Play(address string, input string) error {
+	//parse input
 	split := strings.Split(input, " ")
 	name := split[0]
 	params := split[1:]
 
-	r, err := c.Play(ctx, &playerProto.PlayRequest{Name: name, Params: params})
-	defer cancel()
-
-	if err != nil {
-		panic(err)
+	switch communication_implementation {
+	case "grpc":
+		return grpc.Play(address, name, params)
+	default:
+		return errors.New(fmt.Sprintf("%v communication not supported", communication_implementation))
 	}
-
-	fmt.Println(r)
 }
