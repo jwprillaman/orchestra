@@ -59,8 +59,22 @@ func (s *server) GetPlayers(context context.Context, filter *pb.Filter) (*pb.Pla
 
 //get all playing songs on all players
 func (s *server) GetSongs(context context.Context, filter *pb.Filter) (*pb.Songs, error) {
-	log.Printf("Filter : %v\n", filter.SongIds)
-	return &pb.Songs{Ids: []int64{0, 1}, Players: []string{"player1", "player2"}}, nil
+
+	allPlayers.mux.Lock()
+
+	songs := make([]int64, 0)
+	players := make([]string, 0)
+
+	for _, player := range allPlayers.store {
+		for _, songId := range player.SongIds {
+			songs = append(songs, songId)
+			players = append(players, player.Name)
+		}
+	}
+
+	allPlayers.mux.Unlock()
+
+	return &pb.Songs{Ids: songs, Players: players}, nil
 }
 
 func (s *server) RegisterPlayer(context context.Context, input *pb.Player) (*pb.Response, error) {
