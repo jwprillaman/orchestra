@@ -71,12 +71,11 @@ func (*server) Play(ctx context.Context, req *playerProto.PlayRequest) (*playerP
 	if err != nil {
 		panic(err)
 	}
-
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		panic(err)
 	}
-
+	//start command
 	err = cmd.Start()
 	if err != nil {
 		panic(err)

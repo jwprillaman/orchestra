@@ -23,6 +23,7 @@ type playerStore struct {
 //TODO create abstract player report separate from grpc implementation
 var allPlayers = &playerStore{make(map[string]*pb.PlayerReport), sync.Mutex{}}
 
+//get player with most memory available
 func (ps *playerStore) GetBest() (string, error) {
 	ps.mux.Lock()
 	output := ""
@@ -42,6 +43,7 @@ func (ps *playerStore) GetBest() (string, error) {
 	return output, err
 }
 
+//list all players that are registered
 func (s *server) GetPlayers(context context.Context, filter *pb.Filter) (*pb.Players, error) {
 	log.Printf("Filter : %v\n", filter.PlayerName)
 	allPlayers.mux.Lock()
@@ -55,6 +57,7 @@ func (s *server) GetPlayers(context context.Context, filter *pb.Filter) (*pb.Pla
 	return &pb.Players{Names: names}, nil
 }
 
+//get all playing songs on all players
 func (s *server) GetSongs(context context.Context, filter *pb.Filter) (*pb.Songs, error) {
 	log.Printf("Filter : %v\n", filter.SongIds)
 	return &pb.Songs{Ids: []int64{0, 1}, Players: []string{"player1", "player2"}}, nil
@@ -83,6 +86,7 @@ func (s *server) RemovePlayer(context context.Context, player *pb.Player) (*pb.R
 	return &pb.Response{Success: true, Msg: "success"}, nil
 }
 
+//report player stats to be stored with director
 func (s *server) Report(context context.Context, report *pb.PlayerReport) (*pb.Response, error) {
 	fmt.Println(report)
 	fmt.Println("\tsongs : ", report.SongIds)
