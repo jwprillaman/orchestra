@@ -9,28 +9,42 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"reflect"
 	"sync"
 	"time"
 )
 
-type server struct{}
-
 type playerStore struct {
-	store map[string]*pb.PlayerReport
+	store map[string]Report
 	mux   sync.Mutex
 }
 
-//TODO create abstract player report separate from grpc implementation
-var allPlayers = &playerStore{make(map[string]*pb.PlayerReport), sync.Mutex{}}
+type server struct{}
+
+type Report struct {
+	Name     string
+	TotalRam uint64
+	FreeRam  uint64
+	SongIds  []int64
+}
+
+var allPlayers = &playerStore{make(map[string]Report), sync.Mutex{}}
+
+func (r *Report) Set(report *pb.PlayerReport) {
+	r.Name = report.Name
+	r.TotalRam = report.TotalRam
+	r.FreeRam = report.FreeRam
+	r.SongIds = report.SongIds
+}
 
 //get player with most memory available
 func (ps *playerStore) GetBest() (string, error) {
 	ps.mux.Lock()
 	output := ""
 	var err error = nil
-	var mostMemPlayer *pb.PlayerReport = nil
+	var mostMemPlayer Report = Report{}
 	for address, player := range ps.store {
-		if mostMemPlayer == nil || player.FreeRam > mostMemPlayer.FreeRam {
+		if reflect.DeepEqual(mostMemPlayer, Report{}) || player.FreeRam > mostMemPlayer.FreeRam {
 			mostMemPlayer = player
 			output = address
 		}
@@ -86,7 +100,7 @@ func (s *server) RegisterPlayer(context context.Context, input *pb.Player) (*pb.
 		success = false
 		msg = "name already registered"
 	} else {
-		allPlayers.store[input.Name] = &pb.PlayerReport{}
+		allPlayers.store[input.Name] = Report{}
 	}
 	allPlayers.mux.Unlock()
 	return &pb.Response{Success: success, Msg: msg}, nil
@@ -107,7 +121,9 @@ func (s *server) Report(context context.Context, report *pb.PlayerReport) (*pb.R
 	success := true
 	msg := "success"
 	if _, exists := allPlayers.store[report.Name]; exists {
-		allPlayers.store[report.Name] = report
+		newReport := Report{}
+		newReport.Set(report)
+		allPlayers.store[report.Name] = newReport
 	} else {
 		success = false
 		msg = fmt.Sprintf("%v is not registered with director\n", report.Name)
